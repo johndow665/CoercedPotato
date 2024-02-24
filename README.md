@@ -5,7 +5,7 @@ From Patate (LOCAL/NETWORK SERVICE) to SYSTEM by abusing `SeImpersonatePrivilege
 
 For more information: [https://blog.hackvens.fr/articles/CoercedPotato.html](https://blog.hackvens.fr/articles/CoercedPotato.html) (The english version is coming soon!! 😄)
 
-A very quick PoooooC:
+A very quick PoooooC: 11
 
 ```txt
 .\CoercedPotato.exe -c whoami
